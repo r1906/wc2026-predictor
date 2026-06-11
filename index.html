@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIFA World Cup 2026 — Predictor</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:         #07080b;
+  --surface:    #0d0e12;
+  --card:       #14151c;
+  --card-hi:    #1b1d27;
+  --border:     #1e2030;
+  --border-hi:  #2d3048;
+  --gold:       #c9a84c;
+  --gold-hi:    #e8c96a;
+  --gold-glow:  rgba(201,168,76,0.18);
+  --white:      #eef0f4;
+  --dim:        #4a5068;
+  --muted:      #7a8099;
+
+  --g1: #00d166; --g1-bg: rgba(0,209,102,0.07); --g1-bd: rgba(0,209,102,0.35); --g1-txt: #3ddf88;
+  --g2: #3d8ef5; --g2-bg: rgba(61,142,245,0.07); --g2-bd: rgba(61,142,245,0.35); --g2-txt: #7ab4f8;
+  --g3: #f5a623; --g3-bg: rgba(245,166,35,0.07); --g3-bd: rgba(245,166,35,0.35); --g3-txt: #f7c060;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.012) 1px, transparent 0);
+  background-size: 44px 44px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── HEADER ─── */
+header {
+  position: sticky; top: 0; z-index: 300;
+  height: 58px;
+  background: rgba(7,8,11,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.hdr-brand { display: flex; align-items: center; gap: 12px; }
+.hdr-icon { font-size: 22px; line-height: 1; }
+.hdr-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 21px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  line-height: 1;
+}
+.hdr-sub { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--dim); margin-top: 2px; }
+.hdr-badge {
+  font-size: 11px; color: var(--muted);
+  border: 1px solid var(--border-hi);
+  padding: 4px 12px; border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+.hdr-badge b { color: var(--gold); font-weight: 500; }
+
+/* ─── HERO ─── */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 56px 28px 48px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 110% 70% at 50% 130%, rgba(201,168,76,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 10% -5%, rgba(61,142,245,0.04) 0%, transparent 45%),
+    radial-gradient(ellipse 60% 50% at 90% -5%, rgba(0,209,102,0.03) 0%, transparent 45%),
+    var(--surface);
+  animation: heroBreath 9s ease-in-out infinite alternate;
+}
+@keyframes heroBreath {
+  0%   { opacity: 0.85; }
+  100% { opacity: 1.15; }
+}
+.hero-bottom-line {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--gold-glow) 50%, transparent 100%);
+}
+.hero-eyebrow {
+  position: relative;
+  font-size: 11px; letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--gold); font-weight: 500;
+  margin-bottom: 14px;
+}
+.hero-weare {
+  position: relative;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(54px, 9vw, 88px);
+  letter-spacing: 10px;
+  color: var(--white);
+  line-height: 1;
+}
+.hero-26 {
+  position: relative;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(100px, 20vw, 168px);
+  letter-spacing: 4px;
+  line-height: 0.82;
+  color: var(--gold);
+  text-shadow:
+    0 0 60px rgba(201,168,76,0.25),
+    0 0 120px rgba(201,168,76,0.1);
+  margin-bottom: 18px;
+}
+.hero-desc {
+  position: relative;
+  font-size: 11px; color: var(--dim);
+  letter-spacing: 4px; text-transform: uppercase;
+}
+
+/* ─── PROGRESS ─── */
+.prog-track { height: 3px; background: var(--border); position: relative; }
+.prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-hi));
+  width: 0%;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 0 12px rgba(201,168,76,0.45);
+}
+.status-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 11px 28px;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 16px;
+}
+.status-txt { font-size: 12px; color: var(--muted); }
+.status-pct {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; color: var(--gold);
+  letter-spacing: 1px; white-space: nowrap;
+  min-width: 50px; text-align: right;
+}
+
+/* ─── TABS ─── */
+.tabs-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 28px;
+  display: flex; gap: 6px;
+  overflow-x: auto; scrollbar-width: none;
+  position: sticky; top: 58px; z-index: 200;
+}
+.tabs-bar::-webkit-scrollbar { display: none; }
+.tab-btn {
+  padding: 7px 18px;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  cursor: pointer; background: none;
+  color: var(--dim); white-space: nowrap;
+  transition: color 0.18s, border-color 0.18s, background 0.18s;
+}
+.tab-btn:hover { color: var(--white); border-color: var(--border-hi); }
+.tab-btn.active {
+  color: #070810;
+  background: var(--gold);
+  border-color: var(--gold);
+  font-weight: 600;
+}
+
+/* ─── MAIN ─── */
+main { padding: 28px; max-width: 1300px; margin: 0 auto; position: relative; z-index: 1; }
+.sec-eye { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: 6px; }
+.sec-title { font-family: 'Bebas Neue', sans-serif; font-size: 38px; letter-spacing: 3px; color: var(--white); line-height: 1; margin-bottom: 6px; }
+.sec-desc { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+.legend-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+.leg { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+/* ─── GROUPS ─── */
+.groups-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+
+.group-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px; overflow: hidden;
+  transition: border-color 0.2s, transform 0.22s, box-shadow 0.22s;
+}
+.group-card:hover {
+  border-color: var(--border-hi);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+}
+.group-card-head {
+  padding: 12px 16px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: baseline;
+  justify-content: space-between;
+  position: relative; overflow: hidden;
+}
+.group-card-head::after {
+  content: attr(data-letter);
+  position: absolute; right: 6px; top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 62px; line-height: 1;
+  color: rgba(201,168,76,0.055);
+  pointer-events: none; letter-spacing: 0;
+}
+.g-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; color: var(--gold); }
+.g-count { font-size: 10px; color: var(--dim); letter-spacing: 1px; }
+
+.team-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 16px; cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+  user-select: none; position: relative;
+}
+.team-row:last-child { border-bottom: none; }
+.team-row:hover { background: rgba(255,255,255,0.025); }
+.team-row.p1 { background: var(--g1-bg); border-left: 3px solid var(--g1); }
+.team-row.p2 { background: var(--g2-bg); border-left: 3px solid var(--g2); }
+.team-row.p3 { background: var(--g3-bg); border-left: 3px solid var(--g3); }
+.t-flag { font-size: 19px; line-height: 1; width: 24px; }
+.t-name { flex: 1; font-size: 13px; font-weight: 500; color: #9098b0; }
+.team-row.p1 .t-name { color: var(--g1-txt); }
+.team-row.p2 .t-name { color: var(--g2-txt); }
+.team-row.p3 .t-name { color: var(--g3-txt); }
+.t-pos {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 11px; letter-spacing: 1px;
+  padding: 2px 7px; border-radius: 2px;
+}
+.team-row.p1 .t-pos { background: var(--g1); color: #000; }
+.team-row.p2 .t-pos { background: var(--g2); color: #000; }
+.team-row.p3 .t-pos { background: var(--g3); color: #000; }
+
+/* ─── WILDCARDS ─── */
+.wc-bar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px; padding: 16px 22px;
+  margin-bottom: 20px;
+  display: flex; align-items: center;
+  justify-content: space-between; flex-wrap: wrap; gap: 14px;
+}
+.wc-bar-label { font-size: 13px; color: var(--muted); }
+.wc-bar-label b { color: var(--white); font-weight: 500; }
+.wc-slots { display: flex; gap: 7px; }
+.wc-slot {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--border-hi);
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: transparent;
+  transition: all 0.3s cubic-bezier(.4,0,.2,1);
+}
+.wc-slot.on {
+  background: var(--gold); border-color: var(--gold);
+  color: #070810; font-weight: 700;
+  box-shadow: 0 0 10px rgba(201,168,76,0.5);
+}
+.wc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.wc-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 5px; cursor: pointer;
+  transition: all 0.16s; user-select: none;
+}
+.wc-row:hover:not(.wc-dis) { border-color: var(--border-hi); background: var(--card-hi); }
+.wc-row.wc-sel { background: var(--g3-bg); border-color: var(--g3-bd); box-shadow: 0 0 14px rgba(245,166,35,0.09); }
+.wc-row.wc-sel .wc-rname { color: var(--g3-txt); font-weight: 500; }
+.wc-row.wc-dis { opacity: 0.22; cursor: default; pointer-events: none; }
+.wc-rflag { font-size: 22px; }
+.wc-rname { flex: 1; font-size: 13px; color: #9098b0; }
+.wc-rgrp { font-size: 10px; color: var(--dim); letter-spacing: 1px; }
+.wc-tick { color: var(--g3); font-weight: 700; font-size: 15px; }
+.wc-empty {
+  grid-column: 1/-1;
+  padding: 52px; text-align: center;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.wc-empty-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; letter-spacing: 2px;
+  color: var(--dim); margin-bottom: 8px;
+}
+.wc-empty p { font-size: 13px; color: var(--dim); }
+
+/* ─── BRACKET ─── */
+.bracket-scroll { overflow-x: auto; padding-bottom: 16px; cursor: default; }
+.bracket { display: flex; min-width: 870px; }
+
+.br-round { display: flex; flex-direction: column; flex: 1; min-width: 150px; }
+.br-head {
+  padding: 11px 8px 9px;
+  text-align: center; border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+.br-title { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 2px; color: var(--gold); }
+.br-sub { font-size: 10px; color: var(--dim); letter-spacing: 1px; margin-top: 2px; }
+.br-body { display: flex; flex-direction: column; gap: 0; padding: 0 6px; flex: 1; justify-content: space-around; }
+
+/* Match pair with CSS bracket connector */
+.m-pair {
+  display: flex; flex-direction: column; gap: 5px;
+  position: relative; padding-right: 10px;
+}
+.m-pair::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 26%; height: 48%;
+  width: 10px;
+  border-top: 1px solid var(--border-hi);
+  border-right: 1px solid var(--border-hi);
+  border-bottom: 1px solid var(--border-hi);
+  border-radius: 0 4px 4px 0;
+}
+
+.m-single { padding-right: 0; }
+
+.match {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px; overflow: hidden;
+  transition: border-color 0.15s;
+}
+.match:hover { border-color: var(--border-hi); }
+
+.m-team {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 10px; cursor: pointer;
+  font-size: 12px; font-weight: 500;
+  color: var(--dim);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s, color 0.12s;
+  user-select: none; position: relative;
+}
+.m-team:last-child { border-bottom: none; }
+.m-team:hover:not(.m-tbd) { background: rgba(255,255,255,0.03); color: var(--white); }
+
+@keyframes winnerShimmer {
+  0%   { background-position: -150% 0; }
+  100% { background-position: 250% 0; }
+}
+.m-team.m-win {
+  background: linear-gradient(90deg, transparent 0%, rgba(201,168,76,0.12) 40%, rgba(201,168,76,0.05) 60%, transparent 100%);
+  background-size: 200% 100%;
+  border-left: 2px solid var(--gold);
+  color: var(--gold-hi);
+  padding-left: 8px;
+  animation: winnerShimmer 4s ease-in-out infinite;
+}
+.m-team.m-win::after {
+  content: '▶';
+  position: absolute; right: 8px;
+  font-size: 7px; color: var(--gold); opacity: 0.55;
+}
+.m-team.m-tbd { color: #1e2232; cursor: default; font-style: italic; font-size: 11px; }
+.m-flag { font-size: 14px; }
+
+.br-round.final-round .match { border-color: var(--border-hi); }
+.br-round.final-round .m-team { padding: 9px 12px; font-size: 13px; }
+
+/* ─── COMPARE ─── */
+.cmp-wrap { max-width: 660px; margin: 0 auto; }
+.cmp-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.cmp-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 40px 22px;
+  text-align: center; position: relative; overflow: hidden;
+  transition: all 0.3s;
+}
+.cmp-card.cmp-you { border-color: var(--g1-bd); box-shadow: 0 0 40px rgba(0,209,102,0.06); }
+.cmp-card.cmp-ai  { border-color: rgba(201,168,76,0.3); box-shadow: 0 0 40px rgba(201,168,76,0.07); }
+.cmp-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 130%, rgba(201,168,76,0.035) 0%, transparent 65%);
+}
+.cmp-who {
+  font-size: 10px; letter-spacing: 4px;
+  text-transform: uppercase; margin-bottom: 22px;
+  font-weight: 500; position: relative;
+}
+.cmp-you .cmp-who { color: var(--g1); }
+.cmp-ai  .cmp-who { color: var(--gold); }
+.cmp-flag { font-size: 60px; display: block; margin-bottom: 14px; position: relative; line-height: 1; }
+.cmp-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px; letter-spacing: 3px;
+  color: var(--white); position: relative;
+}
+.verdict {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 6px; padding: 20px 24px;
+  text-align: center; font-size: 15px;
+  font-weight: 500; color: var(--white);
+  margin-bottom: 24px; line-height: 1.5;
+}
+.copy-btn {
+  display: block; width: 100%;
+  background: var(--gold); color: #07080b;
+  border: none; padding: 17px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px; letter-spacing: 4px;
+  cursor: pointer; border-radius: 4px;
+  transition: background 0.18s, transform 0.15s, box-shadow 0.18s;
+}
+.copy-btn:hover {
+  background: var(--gold-hi);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(201,168,76,0.28);
+}
+.copy-btn:active { transform: none; }
+
+/* ─── CONFETTI ─── */
+#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+
+/* ─── FOOTER ─── */
+footer {
+  margin-top: 52px;
+  border-top: 1px solid var(--border);
+  padding: 22px 28px;
+  text-align: center;
+  font-size: 11px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--dim);
+}
+footer em { color: var(--gold); font-style: normal; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  header, .tabs-bar, main, .status-bar { padding-left: 16px; padding-right: 16px; }
+  .hero { padding: 38px 16px 32px; }
+  .hero-26 { font-size: 108px; }
+  .cmp-cards { gap: 10px; }
+  .cmp-card { padding: 28px 14px; }
+  .cmp-flag { font-size: 46px; }
+  .cmp-name { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<!-- HEADER -->
+<header>
+  <div class="hdr-brand">
+    <div class="hdr-icon">⚽</div>
+    <div>
+      <div class="hdr-name">World Cup 2026</div>
+      <div class="hdr-sub">Predictor</div>
+    </div>
+  </div>
+  <div class="hdr-badge">Built with <b>Claude</b></div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-eyebrow">USA · Canada · Mexico · 11 June – 19 July 2026</div>
+  <div class="hero-weare">WE ARE</div>
+  <div class="hero-26">26</div>
+  <div class="hero-desc">48 Teams · 12 Groups · Your prediction vs Claude's</div>
+  <div class="hero-bottom-line"></div>
+</section>
+
+<!-- PROGRESS -->
+<div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+<div class="status-bar">
+  <div class="status-txt" id="status-txt">Step 1 of 3 — Rank teams in each group to start</div>
+  <div class="status-pct" id="status-pct">0%</div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="showTab('groups')">01 · Groups</button>
+  <button class="tab-btn" onclick="showTab('thirds')">02 · Wildcards</button>
+  <button class="tab-btn" onclick="showTab('bracket')">03 · Knockout</button>
+  <button class="tab-btn" onclick="showTab('compare')">My Prediction</button>
+</div>
+
+<!-- MAIN -->
+<main>
+  <!-- GROUPS -->
+  <div id="tab-groups">
+    <p class="sec-eye">Stage 01</p>
+    <h2 class="sec-title">Group Stage</h2>
+    <p class="sec-desc">Tap a team to rank them 1st, 2nd, or 3rd. Top 2 per group auto-qualify. Third place = wildcard candidate.</p>
+    <div class="legend-row">
+      <div class="leg"><div class="leg-dot" style="background:var(--g1)"></div>1st place — qualifies automatically</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--g2)"></div>2nd place — qualifies automatically</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--g3)"></div>3rd place — wildcard candidate</div>
+    </div>
+    <div class="groups-grid" id="groups-grid"></div>
+  </div>
+
+  <!-- WILDCARDS -->
+  <div id="tab-thirds" style="display:none">
+    <p class="sec-eye">Stage 02</p>
+    <h2 class="sec-title">Wildcard Third Places</h2>
+    <p class="sec-desc">8 of the 12 third-place finishers advance based on points and goal difference. Pick which 8 you think make it.</p>
+    <div class="wc-bar">
+      <div class="wc-bar-label">Wildcards selected: <b id="wc-n">0</b> / 8</div>
+      <div class="wc-slots" id="wc-slots"></div>
+    </div>
+    <div class="wc-grid" id="thirds-grid"></div>
+  </div>
+
+  <!-- BRACKET -->
+  <div id="tab-bracket" style="display:none">
+    <p class="sec-eye">Stage 03</p>
+    <h2 class="sec-title">Knockout Rounds</h2>
+    <p class="sec-desc">Click any team to advance them. Round of 32 → 16 → Quarter-finals → Semi-finals → The Final.</p>
+    <div class="bracket-scroll">
+      <div class="bracket" id="bracket"></div>
+    </div>
+  </div>
+
+  <!-- COMPARE -->
+  <div id="tab-compare" style="display:none">
+    <p class="sec-eye">Final Verdict</p>
+    <h2 class="sec-title">You vs Claude</h2>
+    <p class="sec-desc">Check back on 19 July to see who called it right.</p>
+    <div class="cmp-wrap">
+      <div class="cmp-cards">
+        <div class="cmp-card cmp-you">
+          <div class="cmp-who">Your Pick</div>
+          <span class="cmp-flag" id="cmp-flag">🏆</span>
+          <div class="cmp-name" id="cmp-name">TBD</div>
+        </div>
+        <div class="cmp-card cmp-ai">
+          <div class="cmp-who">Claude's Pick</div>
+          <span class="cmp-flag">🇫🇷</span>
+          <div class="cmp-name">France</div>
+        </div>
+      </div>
+      <div class="verdict" id="verdict">Complete your bracket to reveal your prediction</div>
+      <button class="copy-btn" onclick="doCopy()">Copy Prediction for LinkedIn</button>
+    </div>
+  </div>
+</main>
+
+<footer>FIFA World Cup 2026 · USA · Canada · Mexico · <em>Built with Claude</em></footer>
+
+<script>
+const GRP = [
+  {n:'Group A', t:[['🇲🇽','Mexico'],['🇿🇦','South Africa'],['🇰🇷','South Korea'],['🇨🇿','Czechia']]},
+  {n:'Group B', t:[['🇨🇦','Canada'],['🇧🇦','Bosnia & Herz.'],['🇶🇦','Qatar'],['🇨🇭','Switzerland']]},
+  {n:'Group C', t:[['🇧🇷','Brazil'],['🇲🇦','Morocco'],['🇭🇹','Haiti'],['🏴󠁧󠁢󠁳󠁣󠁴󠁿','Scotland']]},
+  {n:'Group D', t:[['🇺🇸','USA'],['🇵🇾','Paraguay'],['🇦🇺','Australia'],['🇹🇷','Türkiye']]},
+  {n:'Group E', t:[['🇩🇪','Germany'],['🇨🇼','Curaçao'],['🇨🇮',"Côte d'Ivoire"],['🇪🇨','Ecuador']]},
+  {n:'Group F', t:[['🇳🇱','Netherlands'],['🇯🇵','Japan'],['🇸🇪','Sweden'],['🇹🇳','Tunisia']]},
+  {n:'Group G', t:[['🇧🇪','Belgium'],['🇪🇬','Egypt'],['🇮🇷','IR Iran'],['🇳🇿','New Zealand']]},
+  {n:'Group H', t:[['🇪🇸','Spain'],['🇨🇻','Cabo Verde'],['🇸🇦','Saudi Arabia'],['🇺🇾','Uruguay']]},
+  {n:'Group I', t:[['🇫🇷','France'],['🇸🇳','Senegal'],['🇮🇶','Iraq'],['🇳🇴','Norway']]},
+  {n:'Group J', t:[['🇦🇷','Argentina'],['🇩🇿','Algeria'],['🇦🇹','Austria'],['🇯🇴','Jordan']]},
+  {n:'Group K', t:[['🇵🇹','Portugal'],['🇨🇩','Congo DR'],['🇺🇿','Uzbekistan'],['🇨🇴','Colombia']]},
+  {n:'Group L', t:[['🏴󠁧󠁢󠁥󠁮󠁧󠁿','England'],['🇭🇷','Croatia'],['🇬🇭','Ghana'],['🇵🇦','Panama']]},
+];
+
+let pos={};
+GRP.forEach(g=>{pos[g.n]={};g.t.forEach(t=>pos[g.n][t[1]]=0);});
+let wc=[];
+let r32=new Array(16).fill(null);
+let r16=new Array(8).fill(null);
+let qf=new Array(4).fill(null);
+let sf=new Array(2).fill(null);
+let fin=null;
+
+function byPos(gn,p){const g=GRP.find(x=>x.n===gn);return g?g.t.find(t=>pos[gn][t[1]]===p)||null:null;}
+
+function tapTeam(gn,tn){
+  const cur=pos[gn][tn];
+  const g=GRP.find(x=>x.n===gn);
+  const taken=new Set(g.t.map(t=>pos[gn][t[1]]).filter(v=>v>0));
+  if(cur===0){for(let p=1;p<=3;p++){if(!taken.has(p)){pos[gn][tn]=p;break;}}}
+  else{
+    pos[gn][tn]=0;
+    const rem=g.t.filter(t=>t[1]!==tn&&pos[gn][t[1]]>0).sort((a,b)=>pos[gn][a[1]]-pos[gn][b[1]]);
+    rem.forEach((t,i)=>pos[gn][t[1]]=i+1);
+  }
+  wc=wc.filter(w=>{const t=byPos(w.gn,3);return t&&t[1]===w.tn;});
+  inv('r32');renderGroups();updateProg();
+  if(document.getElementById('tab-thirds').style.display!=='none')renderThirds();
+}
+
+function inv(s){
+  if(s==='r32'){r32=new Array(16).fill(null);inv('r16');}
+  if(s==='r16'){r16=new Array(8).fill(null);inv('qf');}
+  if(s==='qf'){qf=new Array(4).fill(null);inv('sf');}
+  if(s==='sf'){sf=new Array(2).fill(null);fin=null;}
+}
+
+function tapWC(gn,tn){
+  const idx=wc.findIndex(w=>w.gn===gn&&w.tn===tn);
+  if(idx>=0)wc.splice(idx,1);
+  else if(wc.length<8)wc.push({gn,tn});
+  inv('r32');renderThirds();updateProg();
+  if(document.getElementById('tab-bracket').style.display!=='none')renderBracket();
+}
+
+function all3rds(){return GRP.map(g=>{const t=byPos(g.n,3);return t?{team:t,gn:g.n}:null;}).filter(Boolean);}
+
+function r32pairs(){
+  const g=GRP.map(x=>x.n);
+  // 12 auto-matchups: all 24 group qualifiers (winner of group X vs runner-up of group Y)
+  const auto=[
+    [byPos(g[0],1),byPos(g[1],2)],  // A1 v B2
+    [byPos(g[2],1),byPos(g[3],2)],  // C1 v D2
+    [byPos(g[4],1),byPos(g[5],2)],  // E1 v F2
+    [byPos(g[6],1),byPos(g[7],2)],  // G1 v H2
+    [byPos(g[8],1),byPos(g[9],2)],  // I1 v J2
+    [byPos(g[10],1),byPos(g[11],2)],// K1 v L2
+    [byPos(g[1],1),byPos(g[0],2)],  // B1 v A2
+    [byPos(g[3],1),byPos(g[2],2)],  // D1 v C2
+    [byPos(g[5],1),byPos(g[4],2)],  // F1 v E2
+    [byPos(g[7],1),byPos(g[6],2)],  // H1 v G2
+    [byPos(g[9],1),byPos(g[8],2)],  // J1 v I2
+    [byPos(g[11],1),byPos(g[10],2)],// L1 v K2
+  ];
+  // 4 wildcard matchups (pairs of 3rd-place teams)
+  const wilds=[];
+  for(let i=0;i<4;i++){
+    const getT=w=>w?GRP.find(x=>x.n===w.gn)?.t.find(t=>t[1]===w.tn)||null:null;
+    wilds.push([getT(wc[i*2]),getT(wc[i*2+1])]);
+  }
+  return [...auto,...wilds]; // 16 matchups total
+}
+
+function safe(s){return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
+
+function renderGroups(){
+  document.getElementById('groups-grid').innerHTML=GRP.map(g=>{
+    const sorted=[...g.t].sort((a,b)=>{
+      const pa=pos[g.n][a[1]],pb=pos[g.n][b[1]];
+      if(!pa&&!pb)return 0;if(!pa)return 1;if(!pb)return-1;return pa-pb;
+    });
+    const ql=[byPos(g.n,1),byPos(g.n,2)].filter(Boolean);
+    const L=g.n.replace('Group ','');
+    return `<div class="group-card">
+      <div class="group-card-head" data-letter="${L}">
+        <div class="g-name">${g.n}</div><div class="g-count">${ql.length}/2</div>
+      </div>${sorted.map(t=>{
+        const p=pos[g.n][t[1]];
+        const cls=p===1?'p1':p===2?'p2':p===3?'p3':'';
+        const lbl=p===1?'1ST':p===2?'2ND':p===3?'3RD':'';
+        return `<div class="team-row ${cls}" onclick="tapTeam('${g.n}','${safe(t[1])}')">
+          <span class="t-flag">${t[0]}</span>
+          <span class="t-name">${t[1]}</span>
+          ${lbl?`<span class="t-pos">${lbl}</span>`:''}
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function renderThirds(){
+  const avail=all3rds();
+  const cnt=wc.length;
+  document.getElementById('wc-n').textContent=cnt;
+  document.getElementById('wc-slots').innerHTML=
+    Array.from({length:8},(_,i)=>`<div class="wc-slot ${i<cnt?'on':''}">${i<cnt?'✓':''}</div>`).join('');
+  if(!avail.length){
+    document.getElementById('thirds-grid').innerHTML=`<div class="wc-empty"><div class="wc-empty-title">No Candidates Yet</div><p>Assign 3rd-place finishes in the Groups tab first.</p></div>`;
+    return;
+  }
+  document.getElementById('thirds-grid').innerHTML=avail.map(({team,gn})=>{
+    const sel=wc.some(w=>w.gn===gn&&w.tn===team[1]);
+    const dis=!sel&&cnt>=8;
+    return `<div class="wc-row ${sel?'wc-sel':''} ${dis?'wc-dis':''}" onclick="tapWC('${gn}','${safe(team[1])}')">
+      <span class="wc-rflag">${team[0]}</span>
+      <span class="wc-rname">${team[1]}</span>
+      <span class="wc-rgrp">${gn}</span>
+      ${sel?'<span class="wc-tick">✓</span>':''}
+    </div>`;
+  }).join('');
+}
+
+function tel(team,win,oc){
+  if(!team)return`<div class="m-team m-tbd">— TBD</div>`;
+  return`<div class="m-team ${win?'m-win':''}" onclick="${oc}"><span class="m-flag">${team[0]}</span> ${team[1]}</div>`;
+}
+
+function renderBracket(){
+  const p=r32pairs();
+  let h='';
+
+  // R32: 16 matches in 8 visual pairs
+  h+=`<div class="br-round"><div class="br-head"><div class="br-title">Round of 32</div><div class="br-sub">16 matches</div></div><div class="br-body">`;
+  for(let i=0;i<8;i++){
+    const i0=i*2,i1=i*2+1;
+    const m0=p[i0],m1=p[i1]||[null,null];
+    const w0=r32[i0],w1=r32[i1];
+    h+=`<div class="m-pair">
+      <div class="match">${tel(m0[0],w0&&w0[1]===m0[0]?.[1],`pR32(${i0},0)`)}${tel(m0[1],w0&&w0[1]===m0[1]?.[1],`pR32(${i0},1)`)}</div>
+      <div class="match">${tel(m1[0],w1&&w1[1]===m1[0]?.[1],`pR32(${i1},0)`)}${tel(m1[1],w1&&w1[1]===m1[1]?.[1],`pR32(${i1},1)`)}</div>
+    </div>`;
+  }
+  h+=`</div></div>`;
+
+  // R16: 8 matches in 4 visual pairs
+  h+=`<div class="br-round"><div class="br-head"><div class="br-title">Round of 16</div><div class="br-sub">8 matches</div></div><div class="br-body">`;
+  for(let i=0;i<4;i++){
+    const i0=i*2,i1=i*2+1;
+    const a0=r32[i0*2],b0=r32[i0*2+1],a1=r32[i1*2],b1=r32[i1*2+1];
+    const w0=r16[i0],w1=r16[i1];
+    h+=`<div class="m-pair">
+      <div class="match">${tel(a0,w0&&w0[1]===a0?.[1],`pR16(${i0},0)`)}${tel(b0,w0&&w0[1]===b0?.[1],`pR16(${i0},1)`)}</div>
+      <div class="match">${tel(a1,w1&&w1[1]===a1?.[1],`pR16(${i1},0)`)}${tel(b1,w1&&w1[1]===b1?.[1],`pR16(${i1},1)`)}</div>
+    </div>`;
+  }
+  h+=`</div></div>`;
+
+  // QF: 4 matches in 2 visual pairs
+  h+=`<div class="br-round"><div class="br-head"><div class="br-title">Quarter-Finals</div><div class="br-sub">4 matches</div></div><div class="br-body">`;
+  for(let i=0;i<2;i++){
+    const i0=i*2,i1=i*2+1;
+    const a0=r16[i0*2],b0=r16[i0*2+1],a1=r16[i1*2],b1=r16[i1*2+1];
+    const w0=qf[i0],w1=qf[i1];
+    h+=`<div class="m-pair">
+      <div class="match">${tel(a0,w0&&w0[1]===a0?.[1],`pQF(${i0},0)`)}${tel(b0,w0&&w0[1]===b0?.[1],`pQF(${i0},1)`)}</div>
+      <div class="match">${tel(a1,w1&&w1[1]===a1?.[1],`pQF(${i1},0)`)}${tel(b1,w1&&w1[1]===b1?.[1],`pQF(${i1},1)`)}</div>
+    </div>`;
+  }
+  h+=`</div></div>`;
+
+  // SF: 2 matches in 1 visual pair
+  h+=`<div class="br-round"><div class="br-head"><div class="br-title">Semi-Finals</div><div class="br-sub">2 matches</div></div><div class="br-body">
+    <div class="m-pair">
+      <div class="match">${tel(qf[0],sf[0]&&sf[0][1]===qf[0]?.[1],'pSF(0,0)')}${tel(qf[1],sf[0]&&sf[0][1]===qf[1]?.[1],'pSF(0,1)')}</div>
+      <div class="match">${tel(qf[2],sf[1]&&sf[1][1]===qf[2]?.[1],'pSF(1,0)')}${tel(qf[3],sf[1]&&sf[1][1]===qf[3]?.[1],'pSF(1,1)')}</div>
+    </div>
+  </div></div>`;
+
+  // FINAL
+  h+=`<div class="br-round final-round"><div class="br-head"><div class="br-title">The Final</div><div class="br-sub">MetLife · 19 July</div></div><div class="br-body">
+    <div class="m-single">
+      <div class="match">${tel(sf[0],fin&&fin[1]===sf[0]?.[1],'pFin(0)')}${tel(sf[1],fin&&fin[1]===sf[1]?.[1],'pFin(1)')}</div>
+    </div>
+  </div></div>`;
+
+  document.getElementById('bracket').innerHTML=h;
+  updateCompare();
+}
+
+function pR32(i,s){const p=r32pairs();if(!p[i]||!p[i][s])return;r32[i]=p[i][s];inv('r16');renderBracket();updateProg();}
+function pR16(i,s){const t=[r32[i*2],r32[i*2+1]];if(!t[s])return;r16[i]=t[s];inv('qf');renderBracket();updateProg();}
+function pQF(i,s){const t=[r16[i*2],r16[i*2+1]];if(!t[s])return;qf[i]=t[s];inv('sf');renderBracket();updateProg();}
+function pSF(i,s){const t=[qf[i*2],qf[i*2+1]];if(!t[s])return;sf[i]=t[s];fin=null;renderBracket();updateProg();}
+function pFin(s){const t=[sf[0],sf[1]];if(!t[s])return;fin=t[s];confetti();renderBracket();updateProg();}
+
+function updateCompare(){
+  document.getElementById('cmp-flag').textContent=fin?fin[0]:'🏆';
+  document.getElementById('cmp-name').textContent=fin?fin[1]:'TBD';
+  const v=document.getElementById('verdict');
+  if(fin){
+    v.textContent=fin[1]==='France'
+      ?'🤝 You and Claude agree — France takes it. Bold, but we\'re backing it.'
+      :`You say ${fin[0]} ${fin[1]} · Claude says 🇫🇷 France — one of us is right. Check back 19 July.`;
+  }else{
+    v.textContent='Complete your bracket to reveal your prediction';
+  }
+}
+
+function updateProg(){
+  const qc=GRP.reduce((a,g)=>a+g.t.filter(t=>pos[g.n][t[1]]>0&&pos[g.n][t[1]]<=2).length,0);
+  const wn=wc.length;
+  const rd=r32.filter(Boolean).length;
+  const r1=r16.filter(Boolean).length;
+  const qd=qf.filter(Boolean).length;
+  const sd=sf.filter(Boolean).length;
+  const total=24+8+16+8+4+2+1,done=qc+wn+rd+r1+qd+sd+(fin?1:0);
+  const pct=Math.round((done/total)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('status-pct').textContent=pct+'%';
+  let txt;
+  if(qc<24)     txt=`Step 1 — Rank your 12 groups (${qc}/24 spots filled)`;
+  else if(wn<8) txt=`Step 2 — Choose 8 wildcard third-place teams (${wn}/8)`;
+  else if(rd<16)txt=`Step 3 — Pick your Round of 32 winners (${rd}/16 done)`;
+  else if(r1<8) txt=`Round of 16 — pick your 8 winners (${r1}/8)`;
+  else if(qd<4) txt=`Quarter-finals — who makes the semis? (${qd}/4)`;
+  else if(sd<2) txt=`Semi-finals — who reaches the MetLife final? (${sd}/2)`;
+  else if(!fin) txt='🏆 One final call — who wins the World Cup?';
+  else          txt=`Prediction locked · You: ${fin[0]} ${fin[1]} · Claude: 🇫🇷 France`;
+  document.getElementById('status-txt').textContent=txt;
+}
+
+function showTab(t){
+  ['groups','thirds','bracket','compare'].forEach(x=>{
+    document.getElementById('tab-'+x).style.display=x===t?'':'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach((el,i)=>{
+    el.classList.toggle('active',['groups','thirds','bracket','compare'][i]===t);
+  });
+  if(t==='thirds')renderThirds();
+  if(t==='bracket')renderBracket();
+  if(t==='compare')updateCompare();
+}
+
+function doCopy(){
+  const yc=fin?`${fin[0]} ${fin[1]}`:'TBD';
+  const txt=`My World Cup 2026 prediction 🏆\n\nWinner: ${yc}\nClaude's pick: 🇫🇷 France\n\nI built this interactive bracket predictor using Claude — one conversation, zero code.\n\nTry it: [your link here]\n\n#WorldCup2026 #WEAre26 #AI #Claude`;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const b=document.querySelector('.copy-btn'),o=b.textContent;
+    b.textContent='Copied to clipboard ✓';
+    setTimeout(()=>b.textContent=o,2800);
+  });
+}
+
+// Confetti
+function confetti(){
+  const cv=document.getElementById('confetti');
+  const cx=cv.getContext('2d');
+  cv.width=window.innerWidth; cv.height=window.innerHeight;
+  const cols=['#c9a84c','#e8c96a','#eef0f4','#00d166','#3d8ef5','#f5a623','#ff6b6b'];
+  const parts=Array.from({length:220},()=>({
+    x:Math.random()*cv.width, y:-30-Math.random()*120,
+    vx:(Math.random()-0.5)*7, vy:Math.random()*5+2,
+    sz:Math.random()*11+4,
+    col:cols[Math.floor(Math.random()*cols.length)],
+    rot:Math.random()*360, rv:(Math.random()-0.5)*14,
+    circle:Math.random()>.55
+  }));
+  const t0=Date.now();
+  let fr;
+  (function draw(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    let alive=false;
+    parts.forEach(p=>{
+      if(p.y>cv.height+30)return;
+      alive=true;
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.rv; p.vy+=0.13;
+      cx.save();
+      cx.translate(p.x,p.y);
+      cx.rotate(p.rot*Math.PI/180);
+      cx.globalAlpha=Math.max(0,1-(p.y/cv.height)*0.7);
+      cx.fillStyle=p.col;
+      if(p.circle){cx.beginPath();cx.arc(0,0,p.sz*.4,0,2*Math.PI);cx.fill();}
+      else cx.fillRect(-p.sz/2,-p.sz/4,p.sz,p.sz/2);
+      cx.restore();
+    });
+    if(alive&&Date.now()-t0<5500){fr=requestAnimationFrame(draw);}
+    else cx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+renderGroups();
+updateProg();
+</script>
+</body>
+</html>
